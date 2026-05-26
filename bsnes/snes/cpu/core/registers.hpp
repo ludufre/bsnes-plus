@@ -6,15 +6,15 @@ struct flag_t {
          + (d << 3) + (i << 2) + (z << 1) + (c << 0);
   }
 
-  inline unsigned operator=(uint8 data) {
+  inline unsigned operator=(unsigned data) {
     n = data & 0x80; v = data & 0x40; m = data & 0x20; x = data & 0x10;
     d = data & 0x08; i = data & 0x04; z = data & 0x02; c = data & 0x01;
     return data;
   }
 
-  inline unsigned operator|=(unsigned data) { return operator=(operator unsigned() | data); }
-  inline unsigned operator^=(unsigned data) { return operator=(operator unsigned() ^ data); }
-  inline unsigned operator&=(unsigned data) { return operator=(operator unsigned() & data); }
+  inline unsigned operator|=(unsigned data) { return *this = (operator unsigned() | data); }
+  inline unsigned operator^=(unsigned data) { return *this = (operator unsigned() ^ data); }
+  inline unsigned operator&=(unsigned data) { return *this = (operator unsigned() & data); }
 
   flag_t() : n(0), v(0), m(0), x(0), d(0), i(0), z(0), c(0) {}
 };
