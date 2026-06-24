@@ -47,10 +47,35 @@ void Cartridge::parse_xml_cartridge(const char *data) {
         if(node.name == "obc1") xml_parse_obc1(node);
         if(node.name == "setarisc") xml_parse_setarisc(node);
         if(node.name == "msu1") xml_parse_msu1(node);
+        if(node.name == "sd2snes") xml_parse_sd2snes(node);  // CICLONE
         if(node.name == "serial") xml_parse_serial(node);
       }
     }
   }
+}
+
+// CICLONE: cartucho sd2snes. O chip decodifica o endereço SNES completo (Direct map),
+// então mapeamos faixas de cartucho FIXAS evitando $0000-$5FFF em $00-$3F/$80-$BF
+// (WRAM/MMIO restaurados por map_system). A janela SNESCMD $2A00-$2FFF vira MMIO.
+// O FpgaModel do host faz o decode real por mapper.
+void Cartridge::xml_parse_sd2snes(xml_element &root) {
+  has_sd2snes = true;
+  static const unsigned rng[][4] = {
+    { 0x00, 0x3f, 0x6000, 0xffff },   // SRAM/upper ($8000-$ffff ROM + $6000-$7fff SRAM)
+    { 0x80, 0xbf, 0x6000, 0xffff },
+    { 0x40, 0x7d, 0x0000, 0xffff },   // HiROM/LoROM full (exclui $7e-$7f WRAM)
+    { 0xc0, 0xff, 0x0000, 0xffff },
+  };
+  for(unsigned i = 0; i < 4; i++) {
+    Mapping m((Memory&)sd2snes);
+    m.mode = Bus::MapMode::Direct;
+    m.banklo = rng[i][0]; m.bankhi = rng[i][1];
+    m.addrlo = rng[i][2]; m.addrhi = rng[i][3];
+    mapping.append(m);
+  }
+  Mapping mm((MMIO&)sd2snes);          // janela SNESCMD
+  mm.addrlo = 0x2a00; mm.addrhi = 0x2fff;
+  mapping.append(mm);
 }
 
 void Cartridge::parse_xml_bsx(const char *data) {

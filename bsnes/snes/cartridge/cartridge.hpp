@@ -55,6 +55,7 @@ public:
   readonly<bool> has_obc1;
   readonly<bool> has_st0018;
   readonly<bool> has_msu1;
+  readonly<bool> has_sd2snes;  // CICLONE
   readonly<bool> has_serial;
 
   struct Mapping {
@@ -109,6 +110,7 @@ private:
   void xml_parse_obc1(xml_element&);
   void xml_parse_setarisc(xml_element&);
   void xml_parse_msu1(xml_element&);
+  void xml_parse_sd2snes(xml_element&);  // CICLONE
   void xml_parse_serial(xml_element&);
 
   void xml_parse_address(Mapping&, const string&);

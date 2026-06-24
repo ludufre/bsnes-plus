@@ -15,6 +15,7 @@ struct Coprocessor : Processor {
 #include <chip/obc1/obc1.hpp>
 #include <chip/st0018/st0018.hpp>
 #include <chip/msu1/msu1.hpp>
+#include <chip/sd2snes/sd2snes.hpp>  // CICLONE
 #include <chip/serial/serial.hpp>
 
 void Coprocessor::step(unsigned clocks) {

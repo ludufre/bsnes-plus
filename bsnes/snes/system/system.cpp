@@ -88,6 +88,7 @@ void System::init(Interface *interface_) {
   obc1.init();
   st0018.init();
   msu1.init();
+  sd2snes.init();  // CICLONE
   serial.init();
 
   video.init();
@@ -137,6 +138,7 @@ void System::power() {
   if(cartridge.has_obc1()) obc1.enable();
   if(cartridge.has_st0018()) st0018.enable();
   if(cartridge.has_msu1()) msu1.enable();
+  if(cartridge.has_sd2snes()) sd2snes.enable();  // CICLONE
   if(cartridge.has_serial()) serial.enable();
 
   cpu.power();
@@ -161,6 +163,7 @@ void System::power() {
   if(cartridge.has_obc1()) obc1.power();
   if(cartridge.has_st0018()) st0018.power();
   if(cartridge.has_msu1()) msu1.power();
+  if(cartridge.has_sd2snes()) sd2snes.power();  // CICLONE
   if(cartridge.has_serial()) serial.power();
 
   if(expansion == ExpansionPortDevice::BSX) cpu.coprocessors.append(&bsxbase);
@@ -202,6 +205,7 @@ void System::reset() {
   if(cartridge.has_obc1()) obc1.reset();
   if(cartridge.has_st0018()) st0018.reset();
   if(cartridge.has_msu1()) msu1.reset();
+  if(cartridge.has_sd2snes()) sd2snes.reset();  // CICLONE
   if(cartridge.has_serial()) serial.reset();
 
   if(expansion == ExpansionPortDevice::BSX) cpu.coprocessors.append(&bsxbase);
