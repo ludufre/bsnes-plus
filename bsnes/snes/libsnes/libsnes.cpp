@@ -265,3 +265,24 @@ unsigned snes_get_memory_size(unsigned id) {
 
   return size;
 }
+
+// CICLONE: acesso cru às memórias internas do console p/ o harness de testes do menu
+// (host_runner --serve). 0 = WRAM (128 KB), 1 = VRAM (64 KB), 2 = CGRAM (512 B), 3 = OAM (544 B).
+extern "C" uint8_t* ciclone_snes_memory(unsigned id, unsigned *size) {
+  switch(id) {
+    case 0: if(size) *size = SNES::memory::wram.size();  return SNES::memory::wram.data();
+    case 1: if(size) *size = SNES::memory::vram.size();  return SNES::memory::vram.data();
+    case 2: if(size) *size = SNES::memory::cgram.size(); return SNES::memory::cgram.data();
+    case 3: if(size) *size = SNES::memory::oam.size();   return SNES::memory::oam.data();
+  }
+  if(size) *size = 0;
+  return 0;
+}
+
+// CICLONE: posição do feixe no quadro corrente, em master cycles (V*1364 + H). O harness usa
+// para ritmar a emulação pelo RELÓGIO DO SNES nos acessos ao chip (e não só por quadro): dentro
+// de um quadro a emulação roda em rajada, e isso comprimia o tempo do SNES em relação ao do MCU
+// ao ponto de abrir raças de handshake que no console não existem.
+extern "C" unsigned ciclone_snes_frame_pos(void) {
+  return SNES::cpu.vcounter() * 1364 + SNES::cpu.hcounter();
+}

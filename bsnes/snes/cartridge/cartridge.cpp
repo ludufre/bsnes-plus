@@ -56,6 +56,7 @@ void Cartridge::load(Mode cartridge_mode, const lstring &xml_list) {
   has_obc1       = false;
   has_st0018     = false;
   has_msu1       = false;
+  has_sd2snes    = false;  // CICLONE
   has_serial     = false;
 
   parse_xml(xml_list);

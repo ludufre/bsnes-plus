@@ -7,6 +7,7 @@ snes_objects += snes-supergameboy snes-superfx snes-sa1 snes-necdsp
 snes_objects += snes-bsx snes-srtc snes-sdd1 snes-spc7110 snes-cx4
 snes_objects += snes-obc1 snes-st0018
 snes_objects += snes-msu1 snes-serial
+snes_objects += snes-sd2snes
 objects += $(snes_objects)
 
 ifeq ($(profile),accuracy)
@@ -46,7 +47,7 @@ $(objdir)/snes-cpu.o      : $(snescpu)/cpu.cpp $(call rwildcard,$(snescpu)/) $(c
 $(objdir)/snes-smp.o      : $(snessmp)/smp.cpp $(call rwildcard,$(snessmp)/) $(call rwildcard,$(snes)/debugger)
 $(objdir)/snes-dsp.o      : $(snesdsp)/dsp.cpp $(call rwildcard,$(snesdsp)/) $(call rwildcard,$(snes)/debugger)
 $(objdir)/snes-ppu.o      : $(snesppu)/ppu.cpp $(call rwildcard,$(snesppu)/) $(call rwildcard,$(snes)/debugger)
-$(objdir)/snes-cartridge.o: $(snes)/cartridge/cartridge.cpp $(call rwilddcard,$(snes)/cartridge/)
+$(objdir)/snes-cartridge.o: $(snes)/cartridge/cartridge.cpp $(call rwildcard,$(snes)/cartridge/)
 $(objdir)/snes-cheat.o    : $(snes)/cheat/cheat.cpp $(call rwildcard,$(snes)/cheat/)
 
 $(objdir)/snes-supergameboy.o: $(snes)/chip/supergameboy/supergameboy.cpp $(call rwildcard,$(snes)/chip/supergameboy/)
@@ -62,6 +63,7 @@ $(objdir)/snes-obc1.o        : $(snes)/chip/obc1/obc1.cpp $(snes)/chip/obc1/*
 $(objdir)/snes-st0018.o      : $(snes)/chip/st0018/st0018.cpp $(snes)/chip/st0018/*
 $(objdir)/snes-msu1.o        : $(snes)/chip/msu1/msu1.cpp $(snes)/chip/msu1/*
 $(objdir)/snes-serial.o      : $(snes)/chip/serial/serial.cpp $(snes)/chip/serial/*
+$(objdir)/snes-sd2snes.o     : $(snes)/chip/sd2snes/sd2snes.cpp $(snes)/chip/sd2snes/*
 
 ###########
 # library #
