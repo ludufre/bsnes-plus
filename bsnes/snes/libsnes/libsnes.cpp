@@ -267,13 +267,15 @@ unsigned snes_get_memory_size(unsigned id) {
 }
 
 // CICLONE: acesso cru às memórias internas do console p/ o harness de testes do menu
-// (host_runner --serve). 0 = WRAM (128 KB), 1 = VRAM (64 KB), 2 = CGRAM (512 B), 3 = OAM (544 B).
+// (host_runner --serve). 0 = WRAM (128 KB), 1 = VRAM (64 KB), 2 = CGRAM (512 B), 3 = OAM (544 B),
+// 4 = ARAM (64 KB, the S-SMP's: which program the APU runs).
 extern "C" uint8_t* ciclone_snes_memory(unsigned id, unsigned *size) {
   switch(id) {
     case 0: if(size) *size = SNES::memory::wram.size();  return SNES::memory::wram.data();
     case 1: if(size) *size = SNES::memory::vram.size();  return SNES::memory::vram.data();
     case 2: if(size) *size = SNES::memory::cgram.size(); return SNES::memory::cgram.data();
     case 3: if(size) *size = SNES::memory::oam.size();   return SNES::memory::oam.data();
+    case 4: if(size) *size = SNES::memory::apuram.size(); return SNES::memory::apuram.data();
   }
   if(size) *size = 0;
   return 0;
@@ -285,4 +287,12 @@ extern "C" uint8_t* ciclone_snes_memory(unsigned id, unsigned *size) {
 // ao ponto de abrir raças de handshake que no console não existem.
 extern "C" unsigned ciclone_snes_frame_pos(void) {
   return SNES::cpu.vcounter() * 1364 + SNES::cpu.hcounter();
+}
+
+// CICLONE: the S-CPU's program counter (24-bit, PB:PC) and stack pointer, for traces that need
+// to know WHO made an access (host_runner CICLONE_TRACE_APU). Read mid-instruction, PC already
+// points past the operands the CPU has fetched.
+extern "C" void ciclone_cpu_state(uint32_t *pc, uint16_t *sp) {
+  if(pc) *pc = SNES::cpu.regs.pc.d & 0xffffff;
+  if(sp) *sp = SNES::cpu.regs.s.w;
 }
