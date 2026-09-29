@@ -76,6 +76,9 @@ void Cartridge::xml_parse_sd2snes(xml_element &root) {
   Mapping mm((MMIO&)sd2snes);          // S-RTC ($2800/$2801) + janela SNESCMD ($2A00-$2FFF)
   mm.addrlo = 0x2800; mm.addrhi = 0x2fff;
   mapping.append(mm);
+  Mapping md((MMIO&)sd2snes);          // the FPGA copier's registers ($2020-$202F, dma.v)
+  md.addrlo = 0x2020; md.addrhi = 0x202f;
+  mapping.append(md);
 }
 
 void Cartridge::parse_xml_bsx(const char *data) {
