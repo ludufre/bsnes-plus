@@ -18,3 +18,15 @@ public:
 };
 
 extern SD2SNES sd2snes;
+
+// CICLONE: what the cart edge sees beyond its own address ranges. The real FPGA snoops the
+// whole A/B bus: cheat.v spots the 4 stack pushes before an interrupt vector fetch and hijacks
+// it (in-game hook), ctx.v mirrors PPU/CPU register writes into PSRAM, main.v watches $4200
+// (auto-joypad) and $4016 (manual pad polling). bsnes hands those to the host through these;
+// ciclone_snoop is only on while an sd2snes cart is mapped, so other carts pay one branch.
+extern bool ciclone_snoop;
+extern "C" {
+  void ciclone_chip_irq_vector(uint32_t vector, int native);   // CPU is about to fetch it
+  void ciclone_chip_bus_snoop(uint32_t addr, uint8_t data, int write);
+  void ciclone_chip_reset(void);                              // /RESET strobe
+}

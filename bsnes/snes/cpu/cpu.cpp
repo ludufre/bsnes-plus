@@ -93,6 +93,7 @@ void CPU::op_irq() {
   op_writestack(regs.pc.h);
   op_writestack(regs.pc.l);
   op_writestack(regs.e ? (regs.p & ~0x10) : regs.p);
+  if(ciclone_snoop) ciclone_chip_irq_vector(status.interrupt_vector, !regs.e);  // CICLONE: 4 pushes = native
   rd.l = op_read(status.interrupt_vector + 0);
   regs.pc.b = 0x00;
   regs.p.i  = 1;

@@ -8,16 +8,20 @@ extern "C" {
   int     __attribute__((weak)) ciclone_chip_active(void) { return 0; }
   uint8_t __attribute__((weak)) ciclone_chip_snes_read(uint32_t addr) { (void)addr; return 0; }
   void    __attribute__((weak)) ciclone_chip_snes_write(uint32_t addr, uint8_t data) { (void)addr; (void)data; }
+  void    __attribute__((weak)) ciclone_chip_irq_vector(uint32_t vector, int native) { (void)vector; (void)native; }
+  void    __attribute__((weak)) ciclone_chip_bus_snoop(uint32_t addr, uint8_t data, int write) { (void)addr; (void)data; (void)write; }
+  void    __attribute__((weak)) ciclone_chip_reset(void) {}
 }
 
 namespace SNES {
 
 SD2SNES sd2snes;
+bool ciclone_snoop = false;
 
 void SD2SNES::init()   {}
-void SD2SNES::enable() {}
-void SD2SNES::power()  {}
-void SD2SNES::reset()  {}
+void SD2SNES::enable() { ciclone_snoop = true; }
+void SD2SNES::power()  { ciclone_chip_reset(); }
+void SD2SNES::reset()  { ciclone_chip_reset(); }
 
 // Memory: endereço SNES completo (24 bits) via Direct map.
 uint8 SD2SNES::read(unsigned addr)              { return ciclone_chip_snes_read(addr & 0xffffff); }

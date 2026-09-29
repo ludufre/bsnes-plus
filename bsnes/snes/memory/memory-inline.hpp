@@ -106,11 +106,13 @@ uint8 Bus::read(uint24 addr) {
     if(cheat.read(addr, r, *this)) return r;
   }
   #endif
+  if(ciclone_snoop && (addr & 0x40ffff) == 0x4016) ciclone_chip_bus_snoop(addr, 0, 0);  // CICLONE
   Page &p = page[addr >> 8];
   return p.access->read(p.offset + addr);
 }
 
 void Bus::write(uint24 addr, uint8 data) {
+  if(ciclone_snoop) ciclone_chip_bus_snoop(addr, data, 1);  // CICLONE
   Page &p = page[addr >> 8];
   p.access->write(p.offset + addr, data);
 }
