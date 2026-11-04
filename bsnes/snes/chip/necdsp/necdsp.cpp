@@ -14,6 +14,8 @@ void NECDSP::enter() {
   while(true) {
     scheduler.synchronize();
 
+    if(ciclone_necdsp_idle) { step(8000); synchronize_cpu(); continue; }  // CICLONE: no program loaded
+
     uint24 opcode = programROM[regs.pc++];
     switch(opcode >> 22) {
       case 0: exec_op(opcode); break;

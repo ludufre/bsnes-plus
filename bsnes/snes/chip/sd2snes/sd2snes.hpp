@@ -25,6 +25,7 @@ extern SD2SNES sd2snes;
 // (auto-joypad) and $4016 (manual pad polling). bsnes hands those to the host through these;
 // ciclone_snoop is only on while an sd2snes cart is mapped, so other carts pay one branch.
 extern bool ciclone_snoop;
+extern bool ciclone_necdsp_idle;   // NECDSP has no program yet (sd2snes.cpp)
 extern "C" {
   void ciclone_chip_irq_vector(uint32_t vector, int native);   // CPU is about to fetch it
   void ciclone_chip_bus_snoop(uint32_t addr, uint8_t data, int write);
