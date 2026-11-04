@@ -79,6 +79,9 @@ void Cartridge::xml_parse_sd2snes(xml_element &root) {
   Mapping md((MMIO&)sd2snes);          // the FPGA copier's registers ($2020-$202F, dma.v)
   md.addrlo = 0x2020; md.addrhi = 0x202f;
   mapping.append(md);
+  Mapping mu((MMIO&)sd2snes);          // the MSU-1 registers ($2000-$2007, msu.v; FEAT_MSU1 gates them)
+  mu.addrlo = 0x2000; mu.addrhi = 0x2007;
+  mapping.append(mu);
 }
 
 void Cartridge::parse_xml_bsx(const char *data) {
