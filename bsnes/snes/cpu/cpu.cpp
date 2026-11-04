@@ -18,7 +18,16 @@ namespace SNES {
 #include "mmio/mmio.cpp"
 #include "timing/timing.cpp"
 
+// CICLONE profiler: master clocks per PC (bank $C3 per address, other banks per bank)
+uint64 ciclone_prof_clk = 0;
+bool ciclone_prof_on = false;
+uint64 ciclone_prof_hist[0x40000 + 256];
+uint64 ciclone_prof_cnt[0x40000];
+static uint32 ciclone_prof_pc = 0;
+uint64 ciclone_prof_last = 0;
+
 void CPU::step(unsigned clocks) {
+  ciclone_prof_clk += clocks;
   smp.clock -= clocks * (uint64)smp.frequency;
   ppu.clock -= clocks;
   for(unsigned i = 0; i < coprocessors.size(); i++) {
@@ -55,6 +64,14 @@ void CPU::Enter() { cpu.enter(); }
 void CPU::enter() {
   while(true) {
     scheduler.synchronize();
+
+    if(ciclone_prof_on) {
+      uint64 d = ciclone_prof_clk - ciclone_prof_last;
+      if((ciclone_prof_pc >> 18) == (0xc0 >> 2)) { ciclone_prof_hist[ciclone_prof_pc & 0x3ffff] += d; ciclone_prof_cnt[ciclone_prof_pc & 0x3ffff]++; }
+      else ciclone_prof_hist[0x40000 + (ciclone_prof_pc >> 16)] += d;
+      ciclone_prof_last = ciclone_prof_clk;
+      ciclone_prof_pc = regs.pc.d & 0xffffff;
+    }
 
     if(regs.wai) {
       op_wai();

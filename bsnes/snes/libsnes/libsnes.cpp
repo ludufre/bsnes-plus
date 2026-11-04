@@ -296,3 +296,18 @@ extern "C" void ciclone_cpu_state(uint32_t *pc, uint16_t *sp) {
   if(pc) *pc = SNES::cpu.regs.pc.d & 0xffffff;
   if(sp) *sp = SNES::cpu.regs.s.w;
 }
+
+// CICLONE profiler control: on = 1 starts (clears), 0 stops; dump writes the histogram (u64 LE)
+namespace SNES { extern uint64 ciclone_prof_clk; extern uint64 ciclone_prof_last; extern bool ciclone_prof_on; extern uint64 ciclone_prof_hist[0x40000 + 256]; extern uint64 ciclone_prof_cnt[0x40000]; }
+extern "C" void ciclone_prof(int on) {
+  if(on) { memset(SNES::ciclone_prof_hist, 0, sizeof SNES::ciclone_prof_hist); memset(SNES::ciclone_prof_cnt, 0, sizeof SNES::ciclone_prof_cnt); SNES::ciclone_prof_last = SNES::ciclone_prof_clk; }
+  SNES::ciclone_prof_on = on;
+}
+extern "C" int ciclone_prof_dump(const char *path) {
+  FILE *f = fopen(path, "wb");
+  if(!f) return -1;
+  fwrite(SNES::ciclone_prof_hist, 1, sizeof SNES::ciclone_prof_hist, f);
+  fwrite(SNES::ciclone_prof_cnt, 1, sizeof SNES::ciclone_prof_cnt, f);
+  fclose(f);
+  return 0;
+}
