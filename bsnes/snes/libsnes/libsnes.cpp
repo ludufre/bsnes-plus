@@ -297,6 +297,15 @@ extern "C" void ciclone_cpu_state(uint32_t *pc, uint16_t *sp) {
   if(sp) *sp = SNES::cpu.regs.s.w;
 }
 
+// CICLONE: the S-SMP's registers and ports (pc, a, x, y, sp, p, the four ports the S-CPU wrote,
+// the four it reads, IPL ROM mapped | asleep << 1) and the PCs of its last 256 instructions,
+// oldest first (host_runner "smp" and "smpring": where a sound driver went)
+extern "C" void ciclone_smp_state(uint8_t *o) { SNES::smp.ciclone_state(o); }
+namespace SNES { extern uint16 ciclone_smp_ring[256]; extern unsigned ciclone_smp_ring_at; }
+extern "C" void ciclone_smp_ring(uint16_t *o) {
+  for(unsigned i = 0; i < 256; i++) o[i] = SNES::ciclone_smp_ring[(SNES::ciclone_smp_ring_at + i) & 255];
+}
+
 // CICLONE profiler control: on = 1 starts (clears), 0 stops; dump writes the histogram (u64 LE)
 namespace SNES { extern uint64 ciclone_prof_clk; extern uint64 ciclone_prof_last; extern bool ciclone_prof_on; extern uint64 ciclone_prof_hist[0x40000 + 256]; extern uint64 ciclone_prof_cnt[0x40000]; }
 extern "C" void ciclone_prof(int on) {

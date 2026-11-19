@@ -103,7 +103,10 @@ void System::term() {
 }
 
 void System::power() {
-  random.seed((unsigned)time(0));
+  // CICLONE: CICLONE_SEED=N seeds what the power-on (and every reset, see SMP::reset) fills the
+  // memories with, for runs that repeat; otherwise the time, as before. Said on stderr either way.
+  { const char *e = getenv("CICLONE_SEED"); unsigned sd = e && *e ? (unsigned)strtoul(e, 0, 0) : (unsigned)time(0);
+    random.seed(sd); fprintf(stderr, "bsnes: random seed %u\n", sd); }
 
   region = config().region;
   expansion = config().expansion_port;

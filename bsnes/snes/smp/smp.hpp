@@ -18,6 +18,8 @@ public:
   void save_spc_dump(string path);
 
   static const uint8 iplrom[64];
+  void ciclone_state(uint8 *o);   // CICLONE: pc, a, x, y, sp, p, cpu_to_smp[4], smp_to_cpu[4], ipl|wait<<1
+  static bool ciclone_powering;   // CICLONE: reset() called by power()
 
 private:
   #include "memory/memory.hpp"

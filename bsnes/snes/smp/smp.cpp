@@ -46,11 +46,17 @@ void SMP::enter() {
   }
 }
 
+// CICLONE: the PCs of the last 256 instructions the S-SMP started (smpring in host_runner)
+uint16 ciclone_smp_ring[256];
+unsigned ciclone_smp_ring_at = 0;
+
 void SMP::op_step() {
   if(regs.wait)
     op_wait();
-  else
+  else {
+    ciclone_smp_ring[ciclone_smp_ring_at++ & 255] = regs.pc;
     (this->*opcode_table[op_readpc()])();
+  }
 }
 
 void SMP::power() {
@@ -59,7 +65,18 @@ void SMP::power() {
   t1.target = 0;
   t2.target = 0;
 
+  ciclone_powering = true;
   reset();
+  ciclone_powering = false;
+}
+
+bool SMP::ciclone_powering = false;
+
+void SMP::ciclone_state(uint8 *o) {
+  o[0] = regs.pc; o[1] = regs.pc >> 8; o[2] = regs.a; o[3] = regs.x; o[4] = regs.y; o[5] = regs.sp;
+  o[6] = (unsigned)regs.p;
+  for(unsigned i = 0; i < 4; i++) { o[7 + i] = port.cpu_to_smp[i]; o[11 + i] = port.smp_to_cpu[i]; }
+  o[15] = status.iplrom_enabled | (regs.wait << 1);
 }
 
 void SMP::reset() {
@@ -73,8 +90,13 @@ void SMP::reset() {
   regs.p = 0x02;
   regs.wait = false;
 
-  for(unsigned i = 0; i < memory::apuram.size(); i++) {
-    memory::apuram.write(i, random(0));
+  // CICLONE: CICLONE_ARAM_KEEP=1 fills the ARAM only at power on, as the console does: a reset of
+  // the S-SMP leaves its RAM as it was (what the game booted after the menu finds is the menu's)
+  static const bool keep = getenv("CICLONE_ARAM_KEEP") && *getenv("CICLONE_ARAM_KEEP") && *getenv("CICLONE_ARAM_KEEP") != '0';
+  if(ciclone_powering || !keep) {
+    for(unsigned i = 0; i < memory::apuram.size(); i++) {
+      memory::apuram.write(i, random(0));
+    }
   }
 
   //$00f0
